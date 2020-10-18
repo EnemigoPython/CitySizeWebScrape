@@ -10,4 +10,4 @@ Controls:
 
 0-(X) to search using extra criterion found in "B". The list of criteria is numbered, so type the corresponding number
 
-"[CITY NAME]" to search for a city in the data set: this will also pull the first paragraph from the city's Wikipedia page
+"[CITY NAME]" to search for a city in the data set: this will also pull some introduction paragraphs from the city's Wikipedia page
