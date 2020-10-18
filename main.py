@@ -28,6 +28,7 @@ rows = body.find_all("tr")
 categories = []
 col_dict = {}
 header_exceptions = []
+# take the table headers to use as class attributes/search criteria
 for num, header in enumerate(headers):
     try:
         header.sup.decompose()
@@ -40,26 +41,20 @@ for num, header in enumerate(headers):
         if len(col_dict) > 0:
             if list(col_dict.values())[0] > 0:
                 categories.append(f"{list(col_dict.keys())[0]} * {header.text}")
-                # print(f"{list(col_dict.keys())[0]} {header.text}")
                 col_dict[list(col_dict.keys())[0]] -= 1
-                # print(list(col_dict.values())[0])
             else:
                 col_dict.pop(list(col_dict.keys())[0])
                 if list(col_dict.values())[0] > 0:
                     categories.append(f"{list(col_dict.keys())[0]} * {header.text}")
-                    # print(f"{list(col_dict.keys())[0]} {header.text}")
                     col_dict[list(col_dict.keys())[0]] -= 1
-                    # print(list(col_dict.values())[0])
         else:
             try:
                 if header["class"] == ['unsortable']:
+                    # unused headers because the category is an image, not text
                     header_exceptions.append(num)
                 else:
-                    # print(header["class"])
-                    # print(header.text)
                     categories.append(header.text)
             except KeyError:
-                # print(header.text)
                 categories.append(header.text)
 
 categories = [" ".join(category.split()) for category in categories]
@@ -83,8 +78,6 @@ for row in rows:
             if text == "":
                 setattr(cities[-1], categories[category_num], 'N/A')
             else:
-                # print(categories[category_num])
-                # print(text)
                 if text.replace(',', '').isnumeric():
                     setattr(cities[-1], categories[category_num], int(text.replace(',', '')))
                     if not hasattr(cities[-1], 'pop'):
@@ -177,7 +170,7 @@ while True:
                     for sup in sups:
                         sup.decompose()
                 except AttributeError:
-                    print(True)
+                    pass
                 text = " ".join(paragraph.text.split())
                 if len(text) > 0:
                     print(text)
