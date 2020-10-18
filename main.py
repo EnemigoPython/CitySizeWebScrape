@@ -158,6 +158,7 @@ while True:
                 else:
                     print(f'{category}: {getattr(chosen_city, category)}')
             my_url = f'https://en.wikipedia.org/wiki/{getattr(chosen_city, "City")}'
+            my_url = '_'.join(my_url.split())
             print(my_url)
             page_soup = new_soup(my_url)
             main_body = page_soup.find("body")
