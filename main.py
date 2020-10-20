@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen
+import unicodedata
 
 
 class City:
@@ -28,7 +29,6 @@ rows = body.find_all("tr")
 categories = []
 col_dict = {}
 header_exceptions = []
-# take the table headers to use as class attributes/search criteria
 for num, header in enumerate(headers):
     try:
         header.sup.decompose()
@@ -41,20 +41,26 @@ for num, header in enumerate(headers):
         if len(col_dict) > 0:
             if list(col_dict.values())[0] > 0:
                 categories.append(f"{list(col_dict.keys())[0]} * {header.text}")
+                # print(f"{list(col_dict.keys())[0]} {header.text}")
                 col_dict[list(col_dict.keys())[0]] -= 1
+                # print(list(col_dict.values())[0])
             else:
                 col_dict.pop(list(col_dict.keys())[0])
                 if list(col_dict.values())[0] > 0:
                     categories.append(f"{list(col_dict.keys())[0]} * {header.text}")
+                    # print(f"{list(col_dict.keys())[0]} {header.text}")
                     col_dict[list(col_dict.keys())[0]] -= 1
+                    # print(list(col_dict.values())[0])
         else:
             try:
                 if header["class"] == ['unsortable']:
-                    # unused headers because the category is an image, not text
                     header_exceptions.append(num)
                 else:
+                    # print(header["class"])
+                    # print(header.text)
                     categories.append(header.text)
             except KeyError:
+                # print(header.text)
                 categories.append(header.text)
 
 categories = [" ".join(category.split()) for category in categories]
@@ -78,6 +84,8 @@ for row in rows:
             if text == "":
                 setattr(cities[-1], categories[category_num], 'N/A')
             else:
+                # print(categories[category_num])
+                # print(text)
                 if text.replace(',', '').isnumeric():
                     setattr(cities[-1], categories[category_num], int(text.replace(',', '')))
                     if not hasattr(cities[-1], 'pop'):
@@ -93,6 +101,10 @@ for row in rows:
 
 def with_commas(val):
     return "{:,}".format(val)
+
+
+def strip_accents(s):
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
 
 
 # assumption that City/Country remains in wiki table
@@ -150,8 +162,11 @@ while True:
                 print(f'Showing {len(cities)} results for {chosen_category}.')
         print("Type a city to view its data.")
     else:
-        if any(getattr(city, 'City') == user for city in cities):
-            chosen_city = [city for city in cities if getattr(city, 'City') == user][0]
+        if any(getattr(city, 'City') == user for city in cities) or any(strip_accents(getattr(city, 'City')) == user for city in cities):
+            try:
+                chosen_city = [city for city in cities if getattr(city, 'City') == user][0]
+            except IndexError:
+                chosen_city = [city for city in cities if strip_accents(getattr(city, 'City')) == user][0]
             for category in categories:
                 if type(getattr(chosen_city, category)) == int:
                     print(f'{category}: {with_commas(getattr(chosen_city, category))}')
@@ -159,12 +174,13 @@ while True:
                     print(f'{category}: {getattr(chosen_city, category)}')
             my_url = f'https://en.wikipedia.org/wiki/{getattr(chosen_city, "City")}'
             my_url = '_'.join(my_url.split())
+            my_url = strip_accents(my_url)
             print(my_url)
             page_soup = new_soup(my_url)
             main_body = page_soup.find("body")
             text_part = main_body.find(id="mw-content-text")
             all_paragraphs = text_part.find_all("p")
-            paragraphs = all_paragraphs[:2]
+            paragraphs = all_paragraphs[:3]
             for paragraph in paragraphs:
                 try:
                     sups = paragraph.find_all("sup")
