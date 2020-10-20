@@ -108,7 +108,7 @@ def strip_accents(s):
 
 
 # assumption that City/Country remains in wiki table
-pop_categories = [category for category in categories if category != 'City' and category != 'Country']
+pop_categories = [category for category in categories if category != 'City']
 while True:
     user = input('''Type "A" for cities, "B" for categories
 ''')
@@ -135,32 +135,44 @@ while True:
         user = input('''Number of results? (type anything for all)
 ''')
         print(chosen_category)
-        if type(getattr(cities[0], chosen_category)) == int:
-            sorted_cities = sorted([city for city in cities if hasattr(city, chosen_category) and
-                                    type(getattr(city, chosen_category)) == int],
-                                   key=lambda i: getattr(i, chosen_category), reverse=True)
-            if user.isnumeric() and int(user) < len(sorted_cities):
-                for rank, city in enumerate(sorted_cities[:int(user)], 1):
-                    print(
-                        f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({with_commas(getattr(city, chosen_category))})')
-                print(f'Showing {user} results for {chosen_category}.')
-            else:
-                for rank, city in enumerate(sorted_cities, 1):
-                    print(
-                        f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({with_commas(getattr(city, chosen_category))})')
-                print(f'Showing {len(sorted_cities)} results for {chosen_category}.')
+        if chosen_category == 'Country':
+            country_dict = {}
+            for city in cities:
+                if getattr(city, 'Country') in country_dict.keys():
+                    country_dict[getattr(city, 'Country')] += 1
+                else:
+                    country_dict.update({getattr(city, 'Country'): 1})
+            sorted_countries = sorted(country_dict, key=country_dict.get, reverse=True)
+            for country in sorted_countries:
+                print(f'{country_dict.get(country)} cities from {country}')
+            print(f'Showing {len(country_dict)} countries from list.')
         else:
-            if user.isnumeric() and int(user) < len(cities):
-                for rank, city in enumerate(cities[:int(user)], 1):
-                    print(
-                        f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({getattr(city, chosen_category)})')
-                print(f'Showing {user} results for {chosen_category}.')
+            if type(getattr(cities[0], chosen_category)) == int:
+                sorted_cities = sorted([city for city in cities if hasattr(city, chosen_category) and
+                                        type(getattr(city, chosen_category)) == int],
+                                       key=lambda i: getattr(i, chosen_category), reverse=True)
+                if user.isnumeric() and int(user) < len(sorted_cities):
+                    for rank, city in enumerate(sorted_cities[:int(user)], 1):
+                        print(
+                            f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({with_commas(getattr(city, chosen_category))})')
+                    print(f'Showing {user} results for {chosen_category}.')
+                else:
+                    for rank, city in enumerate(sorted_cities, 1):
+                        print(
+                            f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({with_commas(getattr(city, chosen_category))})')
+                    print(f'Showing {len(sorted_cities)} results for {chosen_category}.')
             else:
-                for rank, city in enumerate(cities, 1):
-                    print(
-                        f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({getattr(city, chosen_category)})')
-                print(f'Showing {len(cities)} results for {chosen_category}.')
-        print("Type a city to view its data.")
+                if user.isnumeric() and int(user) < len(cities):
+                    for rank, city in enumerate(cities[:int(user)], 1):
+                        print(
+                            f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({getattr(city, chosen_category)})')
+                    print(f'Showing {user} results for {chosen_category}.')
+                else:
+                    for rank, city in enumerate(cities, 1):
+                        print(
+                            f'{rank}) {getattr(city, "City")}, {getattr(city, "Country")} ({getattr(city, chosen_category)})')
+                    print(f'Showing {len(cities)} results for {chosen_category}.')
+            print("Type a city to view its data.")
     else:
         if any(getattr(city, 'City') == user for city in cities) or any(strip_accents(getattr(city, 'City')) == user for city in cities):
             try:
