@@ -78,6 +78,7 @@ for row in rows:
             if text == "":
                 setattr(cities[-1], categories[category_num], 'N/A')
             else:
+                # save numbers as type int where possible to allow for sorting
                 if text.replace(',', '').isnumeric():
                     setattr(cities[-1], categories[category_num], int(text.replace(',', '')))
                     if not hasattr(cities[-1], 'pop'):
