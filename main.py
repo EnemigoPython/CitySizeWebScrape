@@ -35,32 +35,27 @@ for num, header in enumerate(headers):
     except AttributeError:
         pass
     try:
+        # if the header has subcategories and spans many columns, save the text to use with the subheader
         col_span = int((header['colspan']))
         col_dict.update({header.text: col_span})
     except KeyError:
         if len(col_dict) > 0:
             if list(col_dict.values())[0] > 0:
                 categories.append(f"{list(col_dict.keys())[0]} * {header.text}")
-                # print(f"{list(col_dict.keys())[0]} {header.text}")
                 col_dict[list(col_dict.keys())[0]] -= 1
-                # print(list(col_dict.values())[0])
             else:
                 col_dict.pop(list(col_dict.keys())[0])
                 if list(col_dict.values())[0] > 0:
                     categories.append(f"{list(col_dict.keys())[0]} * {header.text}")
-                    # print(f"{list(col_dict.keys())[0]} {header.text}")
                     col_dict[list(col_dict.keys())[0]] -= 1
-                    # print(list(col_dict.values())[0])
         else:
             try:
+                # if the header is for non-text categories such as images, mark the column as unusable/to ignore
                 if header["class"] == ['unsortable']:
                     header_exceptions.append(num)
                 else:
-                    # print(header["class"])
-                    # print(header.text)
                     categories.append(header.text)
             except KeyError:
-                # print(header.text)
                 categories.append(header.text)
 
 categories = [" ".join(category.split()) for category in categories]
@@ -80,12 +75,9 @@ for row in rows:
             pass
         try:
             text = " ".join(panel.text.split())
-            # print(text)
             if text == "":
                 setattr(cities[-1], categories[category_num], 'N/A')
             else:
-                # print(categories[category_num])
-                # print(text)
                 if text.replace(',', '').isnumeric():
                     setattr(cities[-1], categories[category_num], int(text.replace(',', '')))
                     if not hasattr(cities[-1], 'pop'):
