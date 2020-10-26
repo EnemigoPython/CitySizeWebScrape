@@ -136,9 +136,14 @@ while True:
                 else:
                     country_dict.update({getattr(city, 'Country'): 1})
             sorted_countries = sorted(country_dict, key=country_dict.get, reverse=True)
-            for country in sorted_countries:
-                print(f'{country_dict.get(country)} cities from {country}')
-            print(f'Showing {len(country_dict)} countries from list.')
+            if user.isnumeric() and int(user) < len(sorted_countries):
+                for country in sorted_countries[:int(user)]:
+                    print(f'{country_dict.get(country)} cities from {country}')
+                print(f'Showing {user} countries from list.')
+            else:
+                for country in sorted_countries:
+                    print(f'{country_dict.get(country)} cities from {country}')
+                print(f'Showing {len(country_dict)} countries from list.')
         else:
             if type(getattr(cities[0], chosen_category)) == int:
                 sorted_cities = sorted([city for city in cities if hasattr(city, chosen_category) and
